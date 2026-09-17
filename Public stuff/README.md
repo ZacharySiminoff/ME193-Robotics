@@ -9,3 +9,6 @@ subset of the class repo that's meant to be shared.
   around `legoeducation`, plus a `main.py` template and a hardware smoke
   test. Start here if you're writing your own code for the LEGO Education
   hardware.
+- [Kernels/](Kernels/) — a single-page, no-install tool for exploring image
+  convolution: load an image, threshold it, then edit a 3×3 kernel and hit
+  "Convolve" to see the effect. Open `index.html` directly in a browser.
