@@ -55,6 +55,7 @@ def play_color_sound(color_name):
 
 
 def DoRed():
+    wait(2)
     print("red")
     play_color_sound("Red")
 
