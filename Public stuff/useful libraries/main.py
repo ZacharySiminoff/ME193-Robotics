@@ -73,8 +73,8 @@ def DoOrange():
 
 
 def DoAzure():
-    pass
-
+    print("azure")
+    
 
 
 def DoNoColor():
