@@ -40,7 +40,7 @@ COLOR_SOUNDS = {
     "Azure":   dict(frequency=294,  pattern=le.SOUND_PATTERN_BEEP_TRIPLE),
 }
 
-dm = None  # set in main() once the Double Motor is connected
+dm = None  # doubleMotor, connected in main()
 
 
 
@@ -79,6 +79,7 @@ def DoTeal():
 
 
 def DoGreen():
+    print('green')
     play_color_sound("Green")
 
 
@@ -144,7 +145,8 @@ def DoRightDown():
 
 
 def DoRightReleased():
-    pass
+    if dm is not None:
+        dm.turn_right(360)
 
 
 
@@ -229,6 +231,7 @@ def main():
     dm.connect(card_serial=DOUBLE_MOTOR_CARD_SERIAL, card_color=DOUBLE_MOTOR_CARD_COLOR)
 
     last_color = None
+
     try:
         while True:
             color = sensor.detect_color()
@@ -241,6 +244,8 @@ def main():
         pass
     finally:
         dm.stop_beep(blocking=False)
+        dm.stop()
+        dm.disconnect()
 
 
 
