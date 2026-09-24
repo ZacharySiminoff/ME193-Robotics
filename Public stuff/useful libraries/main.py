@@ -8,7 +8,7 @@ Then copy lelib.py from the SimpleLE repo into this project's folder.
 import time
 
 import legoeducation as le
-from lelib import colorSensor, controller
+from lelib import colorSensor, controller, doubleMotor
 
 # --- Bluetooth card info for your hardware -------------------------------
 # Fill these in with the color/serial printed on your LEGO connection card.
@@ -20,70 +20,101 @@ COLOR_SENSOR_CARD_SERIAL = 7552
 CONTROLLER_CARD_COLOR = le.LEGO_COLOR_ORANGE
 CONTROLLER_CARD_SERIAL = 7552
 
+DOUBLE_MOTOR_CARD_COLOR = le.LEGO_COLOR_ORANGE
+DOUBLE_MOTOR_CARD_SERIAL = 7552
+
 POLL_DELAY_S = 0.1  # seconds between reads
+
+# --- Sound per detected color ----------------------------------------------
+# Each color gets its own beep pitch/pattern so you can tell them apart by ear.
+COLOR_SOUNDS = {
+    "Red":     dict(frequency=440,  pattern=le.SOUND_PATTERN_BEEP_SINGLE),
+    "Yellow":  dict(frequency=523,  pattern=le.SOUND_PATTERN_BEEP_SINGLE),
+    "Blue":    dict(frequency=659,  pattern=le.SOUND_PATTERN_BEEP_SINGLE),
+    "Teal":    dict(frequency=740,  pattern=le.SOUND_PATTERN_BEEP_SINGLE),
+    "Green":   dict(frequency=880,  pattern=le.SOUND_PATTERN_BEEP_SINGLE),
+    "Purple":  dict(frequency=988,  pattern=le.SOUND_PATTERN_BEEP_SINGLE),
+    "White":   dict(frequency=1175, pattern=le.SOUND_PATTERN_BEEP_SINGLE),
+    "Magenta": dict(frequency=330,  pattern=le.SOUND_PATTERN_BEEP_DOUBLE),
+    "Orange":  dict(frequency=392,  pattern=le.SOUND_PATTERN_BEEP_DOUBLE),
+    "Azure":   dict(frequency=294,  pattern=le.SOUND_PATTERN_BEEP_TRIPLE),
+}
+
+dm = None  # doubleMotor, connected in main()
 
 
 
 # --- Empty handler functions ----------------------------------------------
 # Fill these in with whatever behavior you want.
 
+def play_color_sound(color_name):
+    """Beep the Double Motor's speaker with the pitch/pattern for color_name."""
+    sound = COLOR_SOUNDS.get(color_name)
+    if sound is not None:
+        dm.beep(frequency=sound["frequency"], pattern=sound["pattern"], blocking=False)
+
+
 def DoRed():
+    wait(2)
     print("red")
+    play_color_sound("Red")
 
 
 
 def DoYellow():
     print("yellow")
+    play_color_sound("Yellow")
 
 
 
 def DoBlue():
     print("blue")
+    play_color_sound("Blue")
 
 
 
 def DoTeal():
-    pass
+    play_color_sound("Teal")
 
 
 
 def DoGreen():
-    pass
+    print('green')
+    play_color_sound("Green")
 
 
 
 def DoPurple():
-    pass
+    play_color_sound("Purple")
 
 
 
 def DoWhite():
-    pass
+    play_color_sound("White")
 
 
 
 def DoMagenta():
-    pass
+    play_color_sound("Magenta")
 
 
 
 def DoOrange():
-    pass
+    play_color_sound("Orange")
 
 
 
 def DoAzure():
-    print("azure")
-    
+    play_color_sound("Azure")
 
 
 def DoNoColor():
-    pass
+    dm.stop_beep(blocking=False)
 
 
 
 def DoUnknownColor():
-    pass
+    dm.beep(pattern=le.SOUND_PATTERN_BEEP_UP_MIDDLE_DOWN, frequency=220, blocking=False)
 
 
 
@@ -113,7 +144,8 @@ def DoRightDown():
 
 
 def DoRightReleased():
-    pass
+    if dm is not None:
+        dm.turn_right(360)
 
 
 
@@ -186,19 +218,33 @@ def handle_controller(ctl):
 # --- Main loop -------------------------------------------------------------
 
 def main():
+    global dm
+
     sensor = colorSensor()
     sensor.connect(card_serial=COLOR_SENSOR_CARD_SERIAL, card_color=COLOR_SENSOR_CARD_COLOR)
 
     ctl = controller()
     ctl.connect(card_serial=CONTROLLER_CARD_SERIAL, card_color=CONTROLLER_CARD_COLOR)
 
+    dm = doubleMotor()
+    dm.connect(card_serial=DOUBLE_MOTOR_CARD_SERIAL, card_color=DOUBLE_MOTOR_CARD_COLOR)
+
+    last_color = None
+
     try:
         while True:
-            handle_color(sensor.detect_color())
+            color = sensor.detect_color()
+            if color != last_color:
+                handle_color(color)
+                last_color = color
             handle_controller(ctl)
             time.sleep(POLL_DELAY_S)
     except KeyboardInterrupt:
         pass
+    finally:
+        dm.stop_beep(blocking=False)
+        dm.stop()
+        dm.disconnect()
 
 
 
