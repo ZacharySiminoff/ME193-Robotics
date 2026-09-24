@@ -8,7 +8,7 @@ Then copy lelib.py from the SimpleLE repo into this project's folder.
 import time
 
 import legoeducation as le
-from lelib import colorSensor, controller
+from lelib import colorSensor, controller, doubleMotor
 
 # --- Bluetooth card info for your hardware -------------------------------
 # Fill these in with the color/serial printed on your LEGO connection card.
@@ -21,6 +21,8 @@ CONTROLLER_CARD_COLOR = le.LEGO_COLOR_ORANGE
 CONTROLLER_CARD_SERIAL = 7552
 
 POLL_DELAY_S = 0.1  # seconds between reads
+
+dm = None  # doubleMotor, connected in main()
 
 
 
@@ -48,7 +50,8 @@ def DoTeal():
 
 
 def DoGreen():
-    pass
+    print('green')
+    
 
 
 
@@ -113,7 +116,8 @@ def DoRightDown():
 
 
 def DoRightReleased():
-    pass
+    if dm is not None:
+        dm.turn_right(360)
 
 
 
@@ -186,11 +190,16 @@ def handle_controller(ctl):
 # --- Main loop -------------------------------------------------------------
 
 def main():
+    global dm
+
     sensor = colorSensor()
     sensor.connect(card_serial=COLOR_SENSOR_CARD_SERIAL, card_color=COLOR_SENSOR_CARD_COLOR)
 
     ctl = controller()
     ctl.connect(card_serial=CONTROLLER_CARD_SERIAL, card_color=CONTROLLER_CARD_COLOR)
+
+    dm = doubleMotor()
+    dm.connect(card_serial=None)
 
     try:
         while True:
@@ -199,6 +208,9 @@ def main():
             time.sleep(POLL_DELAY_S)
     except KeyboardInterrupt:
         pass
+    finally:
+        dm.stop()
+        dm.disconnect()
 
 
 
