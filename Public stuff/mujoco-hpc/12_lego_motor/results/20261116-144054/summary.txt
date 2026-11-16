@@ -1,0 +1,57 @@
+UPDATE TIMING
+  encoder updates every 30.0 ms (asked for 20); while idle 90 % of gaps within 31.5 ms
+  compared with the motor's steady clock, readings arrive late by: median 2.8 ms, 90 % within 31.5 ms, worst 140 ms
+BLUETOOTH ROUND TRIP (send a command, wait for the reply)
+  median 39.0 ms, 90 % within 42.4 ms, fastest 35.6 ms  ->  one crossing takes at least 17.8 ms
+DIRECTION
+  driving forward (+30, +30): left encoder -239 deg, right encoder +243 deg -> encoder signs [-1.0, 1.0]
+  left-only command moved motor index 0 (183 vs 1 deg)
+SPEED SWEEP (steady speed, rad/s, forward positive)
+    cmd %    left    right
+     +10    +1.80    +1.76
+     +20    +3.47    +3.43
+     +30    +4.91    +5.01
+     +40    +7.11    +7.02
+     +50    +8.93    +8.82
+     +60   +10.49   +10.52
+     +80   +14.04   +14.05
+    +100   +17.59   +17.56
+     -10    -1.61    -1.55
+     -20    -3.11    -3.19
+     -30    -5.00    -5.19
+     -40    -6.98    -6.83
+     -50    -8.66    -8.55
+     -60   -10.00   -10.02
+     -80   -13.89   -13.85
+    -100   -17.39   -17.41
+  0.1770 rad/s per % (left 0.1772, right 0.1767), dead zone 1.2 %, top speed 17.49 rad/s; a straight line is off by 0.16 rad/s rms (deploy.py uses the measured table instead)
+MOTOR MODEL (fitted to the step responses and random commands together)
+  error in how far a wheel turns in 0.2 s, for each loop delay (with the best time constants):
+    delay   0 ms:  5.41 deg   (tau up  50 ms, down  60 ms)   (shorter than a round trip)
+    delay   5 ms:  5.01 deg   (tau up  50 ms, down  40 ms)   (shorter than a round trip)
+    delay  10 ms:  4.89 deg   (tau up  40 ms, down  40 ms)   (shorter than a round trip)
+    delay  15 ms:  4.78 deg   (tau up  40 ms, down  30 ms)   (shorter than a round trip)
+    delay  20 ms:  4.76 deg   (tau up  30 ms, down  30 ms)   (shorter than a round trip)
+    delay  25 ms:  4.77 deg   (tau up  30 ms, down  20 ms)   (shorter than a round trip)
+    delay  30 ms:  4.80 deg   (tau up  20 ms, down  20 ms)   (shorter than a round trip)
+    delay  35 ms:  4.81 deg   (tau up  20 ms, down  15 ms)   <- best
+    delay  40 ms:  4.89 deg   (tau up  15 ms, down  10 ms)
+    delay  45 ms:  4.96 deg   (tau up  10 ms, down   5 ms)
+    delay  50 ms:  5.05 deg   (tau up   5 ms, down   3 ms)
+    delay  55 ms:  5.54 deg   (tau up   5 ms, down   3 ms)
+    delay  60 ms:  6.32 deg   (tau up   5 ms, down   3 ms)
+    delay  65 ms:  7.29 deg   (tau up   5 ms, down   3 ms)
+    delay  70 ms:  8.39 deg   (tau up   5 ms, down   3 ms)
+    delay  75 ms:  9.58 deg   (tau up   5 ms, down   3 ms)
+  (the very best fit, 20 ms, is shorter than the fastest round trip 36 ms, so the best delay at least that long is used)
+  model: command sent -> wheel responds -> reading sent 35 ms (anything from 35 to 45 ms fits within 5 %), time constant 20 ms speeding up, 15 ms slowing down
+  fit error 4.81 deg per 0.2 s (with no delay and no lag: 15.11)
+  -> action delay (command -> wheel) about 17 ms; reading delay (wheel -> computer) at least 18 ms, plus 3 ms typical / 32 ms (90 %) Bluetooth hold-up
+  random commands went out every 50.0 ms (asked 50), longest gap 51 ms
+GYRO (YAW)
+  not measured this time (kept the earlier result)
+CAMERA
+  4079 frames at 28.7 fps, arm found in 100 %
+  699 frames with the arm turning slower than 6 rad/s are used
+  camera vs encoder: 49.5 deg rms apart, agreement 0.688 (1 = perfect), direction +1
+  the camera tracking is too noisy to check the encoder or the timing. See README: camera tips.

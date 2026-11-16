@@ -1,0 +1,5 @@
+# Made locally as you work; large (model checkpoints, videos, logs of every command). Kept off GitHub.
+/runs/
+/logs/
+/results/
+*.mp4

@@ -9,7 +9,7 @@ os.environ.setdefault("MUJOCO_GL", "egl")  # offscreen rendering; must be set be
 import imageio
 import mujoco
 
-SECONDS = 4.0          # how long to simulate
+SECONDS = 6.0          # how long to simulate
 OUT = "bounce.mp4"     # the video file to write
 
 # The world, described in MuJoCo's XML format.
@@ -21,10 +21,10 @@ XML = """
 
     <geom name="floor" type="plane" size="5 5 .1" rgba=".3 .4 .5 1"/>
 
-    <body name="ball" pos="0 0 1.5">
+    <body name="ball" pos="0.5 0.5 1.5">
       <freejoint/>
       <!-- solref = "-stiffness -damping" of the contact. Less damping = bouncier. -->
-      <geom type="sphere" size=".1" rgba="1 .3 .2 1" solref="-20000 -10"/>
+      <geom type="box" size="0.1 0.1 0.1" rgba=".1 .1 .1 1" solref="-20000 -100"/>
     </body>
   </worldbody>
 </mujoco>

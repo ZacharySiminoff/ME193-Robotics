@@ -17,6 +17,9 @@ mujoco-hpc/
   hpc.py               code the four commands above share (ssh, rsync, Slurm, logs). You never run it.
   scripts/             the numbered by-hand steps 00-08b, the smoke test, the bouncing-ball demo
   09_onshape_robot/    build a robot in Onshape, drive it, train it to drive straight (has its own README)
+  10_pingpong_rally/   two paddles learn to rally a ball back and forth (has its own README)
+  11_drive_forward/    train your Onshape robot to drive forward in a straight line (has its own README)
+  12_lego_motor/       measure the real LEGO motor, train with it, run the policy on the robot (has its own README)
   runs/  logs/  results/   created as you work (results from the cluster, logs of every command)
 ```
 
